@@ -6,7 +6,7 @@ import (
 )
 
 /**
- * MatchBranchName matches the given name with the full branch name
+ * Exec matches the given name with the full branch name
  *
  * e.g.
  * fullBranchName: "origin/feature/NOVA-8823/fix-bug"
@@ -21,7 +21,7 @@ import (
  * name: "8823"
  * returns true
  */
-func MatchBranchName(fullBranchName string, shortName string) bool {
+func Exec(fullBranchName string, shortName string) bool {
 	if shortName == "" {
 		return false
 	}

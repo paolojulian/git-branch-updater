@@ -11,7 +11,8 @@ import (
 
 	"paolojulian.dev/git-branch-updater/internal/git_operations"
 	"paolojulian.dev/git-branch-updater/internal/logger"
-	match_branch_name "paolojulian.dev/git-branch-updater/internal/utils"
+	"paolojulian.dev/git-branch-updater/internal/utils/check_if_has_remote_branch"
+	"paolojulian.dev/git-branch-updater/internal/utils/match_branch_name"
 	"paolojulian.dev/git-branch-updater/internal/validator"
 )
 
@@ -46,7 +47,7 @@ func main() {
 
 	APP_LOGGER.Header(3, "Updating branches to latest change")
 	for _, branchName := range branchNames {
-		hasRemoteBranch := checkIfHasRemoteBranch(branchNames, branchName)
+		hasRemoteBranch := check_if_has_remote_branch.Exec(branchNames, branchName)
 		pullBranch(branchName, hasRemoteBranch)
 	}
 
@@ -112,7 +113,7 @@ func getBranchNames(args []string) ([]string, error) {
 
 func getFullBranchName(shortName string, branches []string) (string, error) {
 	for _, branch := range branches {
-		doesMatch := match_branch_name.MatchBranchName(branch, shortName)
+		doesMatch := match_branch_name.Exec(branch, shortName)
 		if doesMatch {
 			trimmedSpaces := strings.TrimSpace(branch)
 			removedAsterisk := strings.TrimPrefix(trimmedSpaces, "*")
@@ -141,17 +142,6 @@ func pullBranch(branchName string, hasRemoteBranch bool) {
 	if err := APP_GIT_OPS.Pull(branchToUpdate); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func checkIfHasRemoteBranch(branches []string, branchName string) bool {
-	for _, branch := range branches {
-		if strings.Contains(branch, branchName) {
-			return true
-		}
-	}
-
-	return false
-
 }
 
 func mergeDependentBranches(branchNames []string) {
