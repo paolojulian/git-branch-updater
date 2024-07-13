@@ -46,7 +46,8 @@ func main() {
 
 	APP_LOGGER.Header(3, "Updating branches to latest change")
 	for _, branchName := range branchNames {
-		pullBranch(branchName)
+		hasRemoteBranch := checkIfHasRemoteBranch(branchNames, branchName)
+		pullBranch(branchName, hasRemoteBranch)
 	}
 
 	if (USER_OPTIONS != nil) && slices.Contains(USER_OPTIONS, "--no-merge") {
@@ -124,9 +125,14 @@ func getFullBranchName(shortName string, branches []string) (string, error) {
 	return "", errors.New("No branch name matches: " + shortName)
 }
 
-func pullBranch(branchName string) {
+func pullBranch(branchName string, hasRemoteBranch bool) {
 	branchToUpdate := strings.TrimPrefix(branchName, "origin/")
 	APP_LOGGER.Description("Pulling branch: " + branchToUpdate)
+
+	if !hasRemoteBranch {
+		APP_LOGGER.Description("Branch not found in remote, skipping")
+		return
+	}
 
 	if err := APP_GIT_OPS.Switch(branchToUpdate); err != nil {
 		log.Fatal(err)
@@ -135,6 +141,17 @@ func pullBranch(branchName string) {
 	if err := APP_GIT_OPS.Pull(branchToUpdate); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func checkIfHasRemoteBranch(branches []string, branchName string) bool {
+	for _, branch := range branches {
+		if strings.Contains(branch, branchName) {
+			return true
+		}
+	}
+
+	return false
+
 }
 
 func mergeDependentBranches(branchNames []string) {

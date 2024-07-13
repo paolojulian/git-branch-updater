@@ -70,31 +70,11 @@ func (g *GitOps) GetBranchNames() ([]string, error) {
 func (g *GitOps) Pull(branchName string) error {
 	cmd := exec.Command("git", "pull", "--ff-only")
 	output, err := cmd.CombinedOutput()
-	if err == nil {
-		return nil
-	}
-
-	hasRemoteBranch, err := checkIfHasRemoteBranch(branchName)
-	println("Has remote branch:", hasRemoteBranch)
 	if err != nil {
 		return displayGitError("failed to pull fast-forward", cmd, output)
 	}
 
-	return displayGitError("failed to pull fast-forward", cmd, output)
-}
-
-func checkIfHasRemoteBranch(branchName string) (bool, error) {
-	// git ls-remote --heads origin refs/heads/[branch-name]
-	cmd := exec.Command("git", "ls-remote", "--heads", "origin", "refs/heads/"+branchName)
-	output, err := cmd.CombinedOutput()
-	println("checkIfHasRemoteBranch output", string(output))
-	println("checkIfHasRemoteBranch error", err.Error())
-	if err != nil {
-		return false, err
-	}
-
-	println("Output", string(output))
-	return true, nil
+	return nil
 }
 
 func (g *GitOps) Push() error {
