@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 
 	"paolojulian.dev/git-branch-updater/internal/git_operations"
@@ -14,43 +15,53 @@ import (
 
 const ARG_SPLITTER string = "/"
 
-var appGitOps GitOperations = git_operations.NewGitOps()
-var appLogger logger.Logger = logger.NewLogger()
+var APP_GIT_OPS git_operations.GitOperations = git_operations.NewGitOps()
+var APP_LOGGER logger.Logger = logger.NewLogger()
+
+var OPTIONS []string = []string{
+	"--no-merge",
+}
+var USER_OPTIONS []string
 
 func main() {
 	args, err := getArgs()
 	if err != nil {
-		appLogger.Error(err)
+		APP_LOGGER.Error(err)
 	}
 
-	appLogger.Header(1, "Fetching branches")
-	if err := appGitOps.Fetch(); err != nil {
+	APP_LOGGER.Header(1, "Fetching branches")
+	if err := APP_GIT_OPS.Fetch(); err != nil {
 		log.Fatal(err)
 	}
 
-	appLogger.Header(2, "Convert args to full branch names")
+	APP_LOGGER.Header(2, "Convert args to full branch names")
 	branchNames, err := getBranchNames(args)
 	if err != nil {
-		appLogger.Error(err)
+		APP_LOGGER.Error(err)
 	}
 
 	validator.ValidateBranches(branchNames)
 
-	appLogger.Header(3, "Updating branches to latest change")
+	APP_LOGGER.Header(3, "Updating branches to latest change")
 	for _, branchName := range branchNames {
 		pullBranch(branchName)
 	}
 
-	appLogger.Header(4, "Merge dependent branches")
+	if (USER_OPTIONS != nil) && slices.Contains(USER_OPTIONS, "--no-merge") {
+		APP_LOGGER.Header(4, "Finished")
+		return
+	}
+
+	APP_LOGGER.Header(4, "Merge dependent branches")
 	mergeDependentBranches(branchNames)
 
-	appLogger.Header(5, "Finished")
+	APP_LOGGER.Header(5, "Finished")
 }
 
 func getArgs() ([]string, error) {
 	argsWithoutProp := os.Args[1:]
-	if len(argsWithoutProp) != 1 {
-		return []string{}, errors.New("should contain exactly one arg")
+	if len(argsWithoutProp) == 0 {
+		return []string{}, errors.New("should at least contain one arg")
 	}
 
 	args := argsWithoutProp[0]
@@ -59,24 +70,30 @@ func getArgs() ([]string, error) {
 		return []string{}, errors.New("invalid arg format, should be like 'master>developer>feature>feature-1'")
 	}
 
+	option := argsWithoutProp[1]
+	if option != "" && slices.Contains(OPTIONS, option) {
+		// The user has provided an option
+		USER_OPTIONS = append(USER_OPTIONS, option)
+	}
+
 	return strings.Split(args, ARG_SPLITTER), nil
 }
 
 func getBranchNames(args []string) ([]string, error) {
-	appLogger.Description("Getting all branch names (git branch -a)")
+	APP_LOGGER.Description("Getting all branch names (git branch -a)")
 
-	branches, err := appGitOps.GetBranchNames()
+	branches, err := APP_GIT_OPS.GetBranchNames()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fullBranchNames := []string{}
 
-	appLogger.Description("Mapping args to full branch names")
+	APP_LOGGER.Description("Mapping args to full branch names")
 	for _, arg := range args {
 		fullBranchName, err := getFullBranchName(arg, branches)
 		if err != nil {
-			appLogger.Error(err)
+			APP_LOGGER.Error(err)
 		}
 		fullBranchNames = append(fullBranchNames, fullBranchName)
 	}
@@ -100,13 +117,13 @@ func getFullBranchName(shortName string, branches []string) (string, error) {
 
 func pullBranch(branchName string) {
 	branchToUpdate := strings.TrimPrefix(branchName, "origin/")
-	appLogger.Description("Pulling branch: " + branchToUpdate)
+	APP_LOGGER.Description("Pulling branch: " + branchToUpdate)
 
-	if err := appGitOps.Switch(branchToUpdate); err != nil {
+	if err := APP_GIT_OPS.Switch(branchToUpdate); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := appGitOps.Pull(); err != nil {
+	if err := APP_GIT_OPS.Pull(); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -118,15 +135,15 @@ func mergeDependentBranches(branchNames []string) {
 		if index == 0 {
 			continue
 		}
-		appLogger.Description("Merging branch: " + currentBranch + " --> " + branchName)
+		APP_LOGGER.Description("Merging branch: " + currentBranch + " --> " + branchName)
 
-		if err := appGitOps.Switch(branchName); err != nil {
+		if err := APP_GIT_OPS.Switch(branchName); err != nil {
 			log.Fatal(err)
 		}
-		if err := appGitOps.Merge(currentBranch); err != nil {
+		if err := APP_GIT_OPS.Merge(currentBranch); err != nil {
 			log.Fatal(err)
 		}
-		if err := appGitOps.Push(); err != nil {
+		if err := APP_GIT_OPS.Push(); err != nil {
 			log.Fatal(err)
 		}
 		currentBranch = branchName
