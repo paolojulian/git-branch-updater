@@ -12,6 +12,9 @@ TLDR: A Go-based CLI tool that simplifies updating dependent Git branches. Ideal
 - **Error Handling**: Robust error detection and reporting.
 - **Fast and Efficient**: Optimized performance for quick updates.
 
+## Installation
+Go to the [Releases](https://github.com/paolojulian/git-branch-updater/releases/tag/v1.0.0) page and download the appropriate binary for your operating system.
+
 ## Use Cases
 
 Given multiple dependent branches:
