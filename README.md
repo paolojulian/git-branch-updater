@@ -1,6 +1,6 @@
 # git-branch-updater
 
-TLDR; `git-branch-updater` is a simple Command Line Interface (CLI) tool written in Go, designed to update dependent feature branches. This tool is perfect for developers working on projects with complex branching strategies, helping to quicken the time updating one feature branch to the other feature branch
+TLDR: A Go-based CLI tool that simplifies updating dependent Git branches. Ideal for developers managing complex branching strategies, it significantly reduces the time needed to update feature branches.
 
 ## Key Features
 
@@ -14,10 +14,7 @@ TLDR; `git-branch-updater` is a simple Command Line Interface (CLI) tool written
 
 ## Use Cases
 
-Given you have multiple dependent branches
-
-### Example
-We need to update `feat/84/tests` from latest `main`, but there are too many dependent branch.
+Given multiple dependent branches:
 
 ```
 main
@@ -26,20 +23,46 @@ main
 -> feat/82/ui
 -> feat/83/integrate-api
 -> feat/84/tests
+
 ```
+Updating `feat/84/tests` from the latest `main` can be tedious. With `git-branch-updater`, it's a single command:
 
-It is quite painful to switch to them one-by-one, with `git-branch-updater` you can do it only on one command.
 
-### Using git-branch-updater
 ```
 $ ./git-branch-updater main/dev/81/82/83/84
 ```
 
 ### Result
 ```
+$ ./git-branch-updater main/dev/81/82/83/84
+
+-- 1. Fetching branches
+-- 2. Convert args to full branch names
+---- Getting all branch names (git branch -a)
+---- Mapping args to full branch names
+
+Is this the correct list of branches?
+  -> main
+  -> dev
+  -> feat/81/task-list
+  -> feat/82/ui
+  -> feat/83/integrate-api
+  -> feat/84/tests
+Continue? (y/n): y 
+Continuing...
+
+-- 3. Updating branches to latest change
+---- Pulling branch: main
+---- Pulling branch: dev
+---- Pulling branch: feat/81/task-list
+---- Pulling branch: feat/82/ui
+---- Pulling branch: feat/83/integrate-api
+---- Pulling branch: feat/84/tests
+-- 4. Merge dependent branches
+---- Merging branch: main --> dev
+---- Merging branch: dev --> feat/81/task-list
+---- Merging branch: feat/81/task-list --> feat/82/ui
+---- Merging branch: feat/82/ui --> feat/83/integrate-api
+---- Merging branch: feat/83/integrate-api --> feat/84/tests
+-- 5. Finished%                     
 ```
-
-
-## Getting Started
-
-Check out our [Installation Guide](link-to-installation-guide) and [Usage Examples](link-to-usage-examples) to start optimizing your Git branch management today!
