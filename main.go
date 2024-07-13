@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"regexp"
@@ -110,7 +109,6 @@ func getBranchNames(args []string) ([]string, error) {
 		log.Fatal(err)
 	}
 
-	fmt.Println(branches)
 	fullBranchNames := []string{}
 
 	APP_LOGGER.Description("Mapping args to full branch names")
