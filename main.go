@@ -112,8 +112,6 @@ func getBranchNames(args []string) ([]string, error) {
 func getFullBranchName(shortName string, branches []string) (string, error) {
 	for _, branch := range branches {
 		doesMatch := match_branch_name.MatchBranchName(branch, shortName)
-		println("fullBranchName: ", branch, "\nshortName: ", shortName, "\nMatch: ", doesMatch)
-		println()
 		if doesMatch {
 			trimmedSpaces := strings.TrimSpace(branch)
 			removedAsterisk := strings.TrimPrefix(trimmedSpaces, "*")
