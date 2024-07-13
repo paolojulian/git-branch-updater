@@ -10,6 +10,7 @@ import (
 
 	"paolojulian.dev/git-branch-updater/internal/git_operations"
 	"paolojulian.dev/git-branch-updater/internal/logger"
+	match_branch_name "paolojulian.dev/git-branch-updater/internal/utils"
 	"paolojulian.dev/git-branch-updater/internal/validator"
 )
 
@@ -108,7 +109,7 @@ func getBranchNames(args []string) ([]string, error) {
 
 func getFullBranchName(shortName string, branches []string) (string, error) {
 	for _, branch := range branches {
-		if strings.Contains(branch, shortName) {
+		if match_branch_name.MatchBranchName(branch, shortName) {
 			trimmedSpaces := strings.TrimSpace(branch)
 			removedAsterisk := strings.TrimPrefix(trimmedSpaces, "*")
 			removedRemotes := strings.TrimPrefix(removedAsterisk, "remotes/")

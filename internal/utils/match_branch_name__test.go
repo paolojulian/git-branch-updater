@@ -78,3 +78,14 @@ func TestNoMatchBranchName3(t *testing.T) {
 		t.Errorf("Expected false, got %t", result)
 	}
 }
+
+func TestWithWhiteSpaces(t *testing.T) {
+	fullBranchName := " origin/feature/NOVA-8823/fix-bug "
+	shortName := "NOVA-8823"
+
+	result := MatchBranchName(fullBranchName, shortName)
+
+	if !result {
+		t.Errorf("Expected true, got %t", result)
+	}
+}
