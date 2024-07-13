@@ -70,10 +70,15 @@ func getArgs() ([]string, error) {
 		return []string{}, errors.New("invalid arg format, should be like 'master>developer>feature>feature-1'")
 	}
 
-	option := argsWithoutProp[1]
-	if option != "" && slices.Contains(OPTIONS, option) {
-		// The user has provided an option
-		USER_OPTIONS = append(USER_OPTIONS, option)
+	if len(argsWithoutProp) == 2 {
+		option := argsWithoutProp[1]
+		if (option != "") && !slices.Contains(OPTIONS, option) {
+			return []string{}, errors.New("invalid option provided: " + option + ", do you mean --no-merge?")
+		}
+		if option != "" && slices.Contains(OPTIONS, option) {
+			// The user has provided an option
+			USER_OPTIONS = append(USER_OPTIONS, option)
+		}
 	}
 
 	return strings.Split(args, ARG_SPLITTER), nil
