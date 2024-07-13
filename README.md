@@ -74,3 +74,10 @@ Example: If you just want to update your local branches (`main`, `staging`, `dev
 ```
 $ git-branch-updater main/staging/dev --update-only
 ```
+
+## What it does? Step-by-step
+1. Fetches all branches
+2. Convert the arguments passed into their designated full branch names
+3. Updates the branches (if there is a remote branch)
+4. Merge dependent branches depending on the placement of the args, e.g. main -> dev -> others
+5. Returns to the current branch the user is in before running the command
