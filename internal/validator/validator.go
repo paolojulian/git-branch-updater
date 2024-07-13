@@ -1,4 +1,4 @@
-package main
+package validator
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func validateBranches(branchNames []string) {
+func ValidateBranches(branchNames []string) {
 	fmt.Println()
 	fmt.Println()
 	fmt.Println("Is this the correct list of branches?")

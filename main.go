@@ -6,41 +6,45 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"paolojulian.dev/git-branch-updater/internal/git_operations"
+	"paolojulian.dev/git-branch-updater/internal/logger"
+	"paolojulian.dev/git-branch-updater/internal/validator"
 )
 
 const ARG_SPLITTER string = "/"
 
-var gitOps GitOperations = NewGitOps()
-var logger Logger = NewLogger()
+var appGitOps GitOperations = git_operations.NewGitOps()
+var appLogger logger.Logger = logger.NewLogger()
 
 func main() {
 	args, err := getArgs()
 	if err != nil {
-		logger.Error(err)
+		appLogger.Error(err)
 	}
 
-	logger.Header(1, "Fetching branches")
-	if err := gitOps.Fetch(); err != nil {
+	appLogger.Header(1, "Fetching branches")
+	if err := appGitOps.Fetch(); err != nil {
 		log.Fatal(err)
 	}
 
-	logger.Header(2, "Convert args to full branch names")
+	appLogger.Header(2, "Convert args to full branch names")
 	branchNames, err := getBranchNames(args)
 	if err != nil {
-		logger.Error(err)
+		appLogger.Error(err)
 	}
 
-	validateBranches(branchNames)
+	validator.ValidateBranches(branchNames)
 
-	logger.Header(3, "Updating branches to latest change")
+	appLogger.Header(3, "Updating branches to latest change")
 	for _, branchName := range branchNames {
 		pullBranch(branchName)
 	}
 
-	logger.Header(4, "Merge dependent branches")
+	appLogger.Header(4, "Merge dependent branches")
 	mergeDependentBranches(branchNames)
 
-	logger.Header(5, "Finished")
+	appLogger.Header(5, "Finished")
 }
 
 func getArgs() ([]string, error) {
@@ -59,20 +63,20 @@ func getArgs() ([]string, error) {
 }
 
 func getBranchNames(args []string) ([]string, error) {
-	logger.Description("Getting all branch names (git branch -a)")
+	appLogger.Description("Getting all branch names (git branch -a)")
 
-	branches, err := gitOps.GetBranchNames()
+	branches, err := appGitOps.GetBranchNames()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fullBranchNames := []string{}
 
-	logger.Description("Mapping args to full branch names")
+	appLogger.Description("Mapping args to full branch names")
 	for _, arg := range args {
 		fullBranchName, err := getFullBranchName(arg, branches)
 		if err != nil {
-			logger.Error(err)
+			appLogger.Error(err)
 		}
 		fullBranchNames = append(fullBranchNames, fullBranchName)
 	}
@@ -96,9 +100,9 @@ func getFullBranchName(shortName string, branches []string) (string, error) {
 
 func pullBranch(branchName string) {
 	branchToUpdate := strings.TrimPrefix(branchName, "origin/")
-	logger.Description("Pulling branch: " + branchToUpdate)
-	gitOps.Switch(branchToUpdate)
-	gitOps.Pull()
+	appLogger.Description("Pulling branch: " + branchToUpdate)
+	appGitOps.Switch(branchToUpdate)
+	appGitOps.Pull()
 }
 
 func mergeDependentBranches(branchNames []string) {
@@ -108,10 +112,10 @@ func mergeDependentBranches(branchNames []string) {
 		if index == 0 {
 			continue
 		}
-		logger.Description("Merging branch: " + currentBranch + " --> " + branchName)
-		gitOps.Switch(branchName)
-		gitOps.Merge(currentBranch)
-		gitOps.Push()
+		appLogger.Description("Merging branch: " + currentBranch + " --> " + branchName)
+		appGitOps.Switch(branchName)
+		appGitOps.Merge(currentBranch)
+		appGitOps.Push()
 		currentBranch = branchName
 	}
 }
