@@ -25,6 +25,7 @@ var OPTIONS []string = []string{
 	"--no-merge",
 }
 var USER_OPTIONS []string
+var CURRENT_BRANCH string
 
 func main() {
 	args, err := getArgs()
@@ -32,12 +33,18 @@ func main() {
 		APP_LOGGER.Error(err)
 	}
 
-	APP_LOGGER.Header(1, "Fetching branches")
+	currentBranch, err := APP_GIT_OPS.GetCurrentBranchName()
+	CURRENT_BRANCH = currentBranch
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	APP_LOGGER.Header("Fetching branches")
 	if err := APP_GIT_OPS.Fetch(); err != nil {
 		log.Fatal(err)
 	}
 
-	APP_LOGGER.Header(2, "Convert args to full branch names")
+	APP_LOGGER.Header("Convert args to full branch names")
 	branchNames, err := getBranchNames(args)
 	if err != nil {
 		APP_LOGGER.Error(err)
@@ -45,7 +52,7 @@ func main() {
 
 	validator.ValidateBranches(branchNames)
 
-	APP_LOGGER.Header(3, "Updating branches to latest change")
+	APP_LOGGER.Header("Updating branches to latest change")
 	remoteBranches, err := APP_GIT_OPS.GetRemoteBranches()
 	if err != nil {
 		log.Fatal(err)
@@ -57,14 +64,16 @@ func main() {
 	}
 
 	if (USER_OPTIONS != nil) && slices.Contains(USER_OPTIONS, "--no-merge") {
-		APP_LOGGER.Header(4, "Finished")
+		switchToCurrentBranch()
+		APP_LOGGER.Header("Finished")
 		return
 	}
 
-	APP_LOGGER.Header(4, "Merge dependent branches")
+	APP_LOGGER.Header("Merge dependent branches")
 	mergeDependentBranches(branchNames)
 
-	APP_LOGGER.Header(5, "Finished")
+	switchToCurrentBranch()
+	APP_LOGGER.Header("Finished")
 }
 
 func getArgs() ([]string, error) {
@@ -168,5 +177,16 @@ func mergeDependentBranches(branchNames []string) {
 			log.Fatal(err)
 		}
 		currentBranch = branchName
+	}
+}
+
+func switchToCurrentBranch() {
+	if CURRENT_BRANCH == "" {
+		return
+	}
+
+	err := APP_GIT_OPS.Switch(CURRENT_BRANCH)
+	if err != nil {
+		log.Fatal(err)
 	}
 }

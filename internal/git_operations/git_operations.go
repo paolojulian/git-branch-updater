@@ -12,6 +12,7 @@ type GitOperations interface {
 	Merge(branchName string) error
 	GetBranchNames() ([]string, error)
 	GetRemoteBranches() ([]string, error)
+	GetCurrentBranchName() (string, error)
 	Pull(branchName string) error
 	Push() error
 }
@@ -106,6 +107,16 @@ func (g *GitOps) GetRemoteBranches() ([]string, error) {
 	}
 
 	return filteredBranches, nil
+}
+
+func (g *GitOps) GetCurrentBranchName() (string, error) {
+	cmd := exec.Command("git", "branch", "--show-current")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", displayGitError("failed to get current branch name", cmd, output)
+	}
+
+	return strings.TrimSpace(string(output)), nil
 }
 
 func displayGitError(title string, cmd *exec.Cmd, output []byte) error {

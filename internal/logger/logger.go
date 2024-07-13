@@ -6,8 +6,10 @@ import (
 	"strings"
 )
 
+var CURRENT_HEADER int = 1
+
 type Logger interface {
-	Header(number int, title string)
+	Header(title string)
 	Description(description string)
 	Error(err error, description ...string)
 }
@@ -19,8 +21,9 @@ func NewLogger() *LoggerImpl {
 	return &LoggerImpl{}
 }
 
-func (l *LoggerImpl) Header(number int, title string) {
-	fmt.Printf("\n-- %d. %s", number, title)
+func (l *LoggerImpl) Header(title string) {
+	fmt.Printf("\n-- %d. %s", CURRENT_HEADER, title)
+	CURRENT_HEADER++
 }
 
 func (l *LoggerImpl) Description(description string) {
