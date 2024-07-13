@@ -1,6 +1,8 @@
 package match_branch_name
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestMatchBranchName(t *testing.T) {
 	fullBranchName := "origin/feature/NOVA-8823/fix-bug"
@@ -87,5 +89,17 @@ func TestWithWhiteSpaces(t *testing.T) {
 
 	if !result {
 		t.Errorf("Expected true, got %t", result)
+	}
+}
+
+func TestWithSubTas(t *testing.T) {
+	fullBranchName := "origin/feature/NOVA-8823/partial/NOVA-8824/ui"
+	shortName := "8823"
+
+	const expected bool = false
+	result := MatchBranchName(fullBranchName, shortName)
+
+	if result != expected {
+		t.Errorf("Expected %t, got %t", expected, result)
 	}
 }
