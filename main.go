@@ -46,8 +46,13 @@ func main() {
 	validator.ValidateBranches(branchNames)
 
 	APP_LOGGER.Header(3, "Updating branches to latest change")
+	remoteBranches, err := APP_GIT_OPS.GetRemoteBranches()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	for _, branchName := range branchNames {
-		hasRemoteBranch := check_if_has_remote_branch.Exec(branchNames, branchName)
+		hasRemoteBranch := check_if_has_remote_branch.Exec(remoteBranches, branchName)
 		pullBranch(branchName, hasRemoteBranch)
 	}
 
