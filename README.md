@@ -68,9 +68,9 @@ Continuing...
 ```
 
 ## Options
-- `--no-merge` : This only pulls the latest changes into its own feature branch, this will not merge dependent branch
+- `--update-only` : This only pulls the latest changes into its own feature branch, this will not merge dependent branch
 
 Example: If you just want to update your local branches (`main`, `staging`, `dev`)
 ```
-$ git-branch-updater main/staging/dev --no-merge
+$ git-branch-updater main/staging/dev --update-only
 ```

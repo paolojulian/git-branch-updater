@@ -22,7 +22,7 @@ var APP_GIT_OPS git_operations.GitOperations = git_operations.NewGitOps()
 var APP_LOGGER logger.Logger = logger.NewLogger()
 
 var OPTIONS []string = []string{
-	"--no-merge",
+	"--update-only",
 }
 var USER_OPTIONS []string
 var CURRENT_BRANCH string
@@ -63,7 +63,7 @@ func main() {
 		pullBranch(branchName, hasRemoteBranch)
 	}
 
-	if (USER_OPTIONS != nil) && slices.Contains(USER_OPTIONS, "--no-merge") {
+	if (USER_OPTIONS != nil) && slices.Contains(USER_OPTIONS, "--update-only") {
 		switchToCurrentBranch()
 		APP_LOGGER.Header("Finished")
 		return
@@ -91,7 +91,7 @@ func getArgs() ([]string, error) {
 	if len(argsWithoutProp) == 2 {
 		option := argsWithoutProp[1]
 		if (option != "") && !slices.Contains(OPTIONS, option) {
-			return []string{}, errors.New("invalid option provided: " + option + ", do you mean --no-merge?")
+			return []string{}, errors.New("invalid option provided: " + option + ", do you mean --update-only?")
 		}
 		if option != "" && slices.Contains(OPTIONS, option) {
 			// The user has provided an option
