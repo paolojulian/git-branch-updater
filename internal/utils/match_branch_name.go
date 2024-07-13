@@ -26,14 +26,18 @@ func MatchBranchName(fullBranchName string, shortName string) bool {
 		return false
 	}
 
-	// Check if shortName is number
-	// If yes, get the latest number from the fullBranchName
-	// e.g. origin/feature/NOVA-8823/partial/NOVA-8824/ui
-	// should just compare NOVA-8824, not NOVA-8823
+	// If the arg is a number, we should get the last number in the branch name
+	// e.g. feature/NOVA-8823/partial/NOVA-8824/ui
+	// should match 8824 and not with 8823
 	if _, err := strconv.Atoi(shortName); err == nil {
-		re := regexp.MustCompile(`\b` + regexp.QuoteMeta(getLatestNumber(fullBranchName)) + `\b`)
-		return re.MatchString(shortName)
+		latestNumber := getLatestNumber(fullBranchName)
+		if latestNumber != "" {
+			re := regexp.MustCompile(`\b` + regexp.QuoteMeta(getLatestNumber(fullBranchName)) + `\b`)
+			return re.MatchString(shortName)
+		}
 	}
+
+	// Arg is a string
 
 	// Escape the name to safely use it in regex
 	re := regexp.MustCompile(`\b` + regexp.QuoteMeta(shortName) + `\b`)
@@ -47,6 +51,8 @@ func getLatestNumber(fullBranchName string) string {
 	if len(matches) == 0 {
 		return ""
 	}
+
 	latestNumber := matches[len(matches)-1][1]
+
 	return latestNumber
 }

@@ -103,3 +103,15 @@ func TestWithSubTas(t *testing.T) {
 		t.Errorf("Expected %t, got %t", expected, result)
 	}
 }
+
+func TestStringToNumber(t *testing.T) {
+	fullBranchName := "dev"
+	shortName := "8823"
+
+	expected := false
+	result := MatchBranchName(fullBranchName, shortName)
+
+	if expected != result {
+		t.Errorf("Expected %t, got %t", expected, result)
+	}
+}

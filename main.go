@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"regexp"
@@ -93,6 +94,7 @@ func getBranchNames(args []string) ([]string, error) {
 		log.Fatal(err)
 	}
 
+	fmt.Println(branches)
 	fullBranchNames := []string{}
 
 	APP_LOGGER.Description("Mapping args to full branch names")
@@ -109,7 +111,10 @@ func getBranchNames(args []string) ([]string, error) {
 
 func getFullBranchName(shortName string, branches []string) (string, error) {
 	for _, branch := range branches {
-		if match_branch_name.MatchBranchName(branch, shortName) {
+		doesMatch := match_branch_name.MatchBranchName(branch, shortName)
+		println("fullBranchName: ", branch, "\nshortName: ", shortName, "\nMatch: ", doesMatch)
+		println()
+		if doesMatch {
 			trimmedSpaces := strings.TrimSpace(branch)
 			removedAsterisk := strings.TrimPrefix(trimmedSpaces, "*")
 			removedRemotes := strings.TrimPrefix(removedAsterisk, "remotes/")
