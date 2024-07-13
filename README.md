@@ -66,3 +66,11 @@ Continuing...
 ---- Merging branch: feat/83/integrate-api --> feat/84/tests
 -- 5. Finished%                     
 ```
+
+## Options
+- `--no-merge` : This only pulls the latest changes into its own feature branch, this will not merge dependent branch
+
+Example: If you just want to update your local branches (`main`, `staging`, `dev`)
+```
+$ git-branch-updater main/staging/dev --no-merge
+```
