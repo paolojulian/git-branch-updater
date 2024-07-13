@@ -78,7 +78,7 @@ func (g *GitOps) Pull() error {
 }
 
 func (g *GitOps) Push() error {
-	cmd := exec.Command("git", "push")
+	cmd := exec.Command("git", "push", "-u", "origin", "HEAD")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return displayGitError("failed to push", cmd, output)
