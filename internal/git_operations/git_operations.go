@@ -11,7 +11,7 @@ type GitOperations interface {
 	Switch(branchName string) error
 	Merge(branchName string) error
 	GetBranchNames() ([]string, error)
-	Pull() error
+	Pull(branchName string) error
 	Push() error
 }
 
@@ -67,14 +67,34 @@ func (g *GitOps) GetBranchNames() ([]string, error) {
 	return branches, nil
 }
 
-func (g *GitOps) Pull() error {
+func (g *GitOps) Pull(branchName string) error {
 	cmd := exec.Command("git", "pull", "--ff-only")
 	output, err := cmd.CombinedOutput()
+	if err == nil {
+		return nil
+	}
+
+	hasRemoteBranch, err := checkIfHasRemoteBranch(branchName)
+	println("Has remote branch:", hasRemoteBranch)
 	if err != nil {
 		return displayGitError("failed to pull fast-forward", cmd, output)
 	}
 
-	return nil
+	return displayGitError("failed to pull fast-forward", cmd, output)
+}
+
+func checkIfHasRemoteBranch(branchName string) (bool, error) {
+	// git ls-remote --heads origin refs/heads/[branch-name]
+	cmd := exec.Command("git", "ls-remote", "--heads", "origin", "refs/heads/"+branchName)
+	output, err := cmd.CombinedOutput()
+	println("checkIfHasRemoteBranch output", string(output))
+	println("checkIfHasRemoteBranch error", err.Error())
+	if err != nil {
+		return false, err
+	}
+
+	println("Output", string(output))
+	return true, nil
 }
 
 func (g *GitOps) Push() error {

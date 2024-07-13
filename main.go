@@ -132,7 +132,7 @@ func pullBranch(branchName string) {
 		log.Fatal(err)
 	}
 
-	if err := APP_GIT_OPS.Pull(); err != nil {
+	if err := APP_GIT_OPS.Pull(branchToUpdate); err != nil {
 		log.Fatal(err)
 	}
 }
