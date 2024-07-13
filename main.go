@@ -101,8 +101,14 @@ func getFullBranchName(shortName string, branches []string) (string, error) {
 func pullBranch(branchName string) {
 	branchToUpdate := strings.TrimPrefix(branchName, "origin/")
 	appLogger.Description("Pulling branch: " + branchToUpdate)
-	appGitOps.Switch(branchToUpdate)
-	appGitOps.Pull()
+
+	if err := appGitOps.Switch(branchToUpdate); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := appGitOps.Pull(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func mergeDependentBranches(branchNames []string) {
@@ -113,9 +119,16 @@ func mergeDependentBranches(branchNames []string) {
 			continue
 		}
 		appLogger.Description("Merging branch: " + currentBranch + " --> " + branchName)
-		appGitOps.Switch(branchName)
-		appGitOps.Merge(currentBranch)
-		appGitOps.Push()
+
+		if err := appGitOps.Switch(branchName); err != nil {
+			log.Fatal(err)
+		}
+		if err := appGitOps.Merge(currentBranch); err != nil {
+			log.Fatal(err)
+		}
+		if err := appGitOps.Push(); err != nil {
+			log.Fatal(err)
+		}
 		currentBranch = branchName
 	}
 }
