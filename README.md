@@ -84,3 +84,7 @@ $ git-branch-updater main/staging/dev --update-only
 3. Updates the branches (if there is a remote branch)
 4. Merge dependent branches depending on the placement of the args, e.g. main -> dev -> others
 5. Returns to the current branch the user is in before running the command
+
+## Future Plans
+- Be able to merge/rebase or fix conflicts
+- Integrate in VSCode
